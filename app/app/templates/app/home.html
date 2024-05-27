@@ -5,9 +5,8 @@
 <div id="{{ obj_name }}">
     <div class="row">
         <div class="row">
-
             <p class="lead fw-bold mb-0 pb-0">
-                Evaluation Metrics:
+                Dashboard Reports:
             </p>
             <p class="font-weight-light text-muted">Here you can check the
                 evaluation
@@ -18,12 +17,13 @@
                         <div class="card-body">
                             <h5 class="card-title text-primary">
                                 <i class="fa-solid fa-book"></i> Source(s)</h5>
-                            <h1 class="display-6">100%</h1>
+                            <h1 class="display-6">{{research}}</h1>
                             <p class="card-text">Count of research source(s) submitted.</p>
                         </div>
                     </center>
                 </div>
             </div>
+
             <div class="col-lg-3">
                 <div class="card text-dark bg-light mb-3 mt-3 shadow">
                     <center>
@@ -31,7 +31,7 @@
                             <h5 class="card-title text-secondary">
                                 <i class="fa-solid fa-database"></i>
                                 Total Sentence(s)</h5>
-                            <h1 class="display-6">100%</h1>
+                            <h1 class="display-6">{{datasets}}</h1>
                             <p class="card-text">Total Sentences in the found in the database.</p>
                         </div>
                     </center>
@@ -43,10 +43,8 @@
                         <div class="card-body">
                             <h5 class="card-title text-success"><i
                                     class="fa-solid fa-check"></i> Checked Paper(s)</h5>
-                            <h1 class="display-6">100%</h1>
-                            <p class="card-text">The proportion of actual positives
-                                that
-                                are correctly identified.</p>
+                            <h1 class="display-6">{{credibility}}</h1>
+                            <p class="card-text">Submitted Papers in the database that are reviewed.</p>
                         </div>
                     </center>
                 </div>
@@ -54,12 +52,12 @@
             <div class="col-lg-3">
                 <div class="card text-dark bg-light mb-3 mt-3 shadow">
                     <center>
+                        
                         <div class="card-body">
                             <h5 class="card-title"><i
                                     class="fa-solid fa-books"></i> Plagiarism Detected</h5>
-                            <h1 class="display-6">100%</h1>
-                            <p class="card-text">The harmonic mean of precision and
-                                recall, balancing both metrics.</p>
+                            <h1 class="display-6">{{plagiarism}}</h1>
+                            <p class="card-text">Detected Plagiarism from the reviewed papers.</p>
                         </div>
                     </center>
                 </div>

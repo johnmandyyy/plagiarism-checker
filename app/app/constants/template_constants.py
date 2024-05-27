@@ -1,10 +1,20 @@
 from app.builder.template_builder import Builder
 from app.constants import app_constants
-
+from app.models import *
 HOME = (
     Builder()
     .addPage("app/home.html")
     .addTitle("home")
+    .addContext(
+    {
+        "title": "Home - Page",
+        "obj_name": "home",
+        "research": len(Research.objects.all()),
+        "credibility": len(Credibility.objects.all()),
+        "datasets": len(Datasets.objects.all()),
+        "plagiarism": len(Credibility.objects.all().filter(is_plagirized = True)),
+    }
+    )
 )
 
 HOME.build()

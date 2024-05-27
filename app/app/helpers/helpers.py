@@ -23,7 +23,9 @@ class ModelHelpers:
 
         for model in installed_models:
             # Get the name of the model and append it to the list
+
             if model.__name__ not in [
+                "Config",
                 "LogEntry",
                 "Permission",
                 "Group",
@@ -31,6 +33,7 @@ class ModelHelpers:
                 "ContentType",
                 "Session",
             ]:
+                
                 self.predefined_models.append(model.__name__)
 
 class SerializerHelpers:
@@ -51,5 +54,6 @@ class SerializerHelpers:
             class Meta:
                 model = django_model
                 fields = "__all__"
+                depth = 1
 
         return AutoSerializer

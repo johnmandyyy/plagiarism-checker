@@ -3,6 +3,7 @@ from django.http import HttpRequest
 import app.constants.template_constants as Templates
 from django.contrib.auth import logout, authenticate, login
 
+
 class TemplateView:
     """Built in Template Renderer View Level"""
 
@@ -26,7 +27,7 @@ class TemplateView:
 
         if not request.user.is_authenticated:
             return redirect("login")
-
+        
         return Templates.DATASETS.render_page(request)
 
     def library(self, request):

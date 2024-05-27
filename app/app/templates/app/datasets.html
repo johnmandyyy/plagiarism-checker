@@ -3,8 +3,99 @@
 {% block content %}
 
 <div id="{{ obj_name }}">
+
+    <!-- Modal -->
+    <div class="modal fade" id="view-details" tabindex="-1" role="dialog"
+        aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold"
+                        id="exampleModalLabel">Research Details</h5>
+                </div>
+                <div class="modal-body">
+                    <p class="fw-bold p-0 m-0">
+                        Title:
+                    </p>
+                    <p class="p-0 mb-2 text-muted">
+                        [[ activeProps.title_id && activeProps.title_id.title ]]
+                    </p>
+                    <p class="fw-bold p-0 mb-2">
+                        Original Text:
+                    </p>
+                    <textarea
+                        class="form-control text-muted mb-2">[[ activeProps.phrase ]]</textarea>
+                    <p class="fw-bold p-0 mb-2">
+                        Suggested Text:
+                    </p>
+                    <textarea
+                        class="form-control text-muted mb-2">[[ activeProps.similar_sample ]]</textarea>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox"
+                            id="flexCheckDefault"
+                            :checked="activeProps.plagiarized">
+                        <label class="form-check-label" for="flexCheckDefault">
+                            Plagiarized / Not Plagiarized
+                        </label>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                        data-dismiss="modal"
+                        @click="closeModal('view-details')">Close</button>
+                    <button type="button" class="btn btn-success">Save
+                        changes</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
 
+        <p class="lead fw-bold mb-0 pb-0">
+            <i class="fa-solid fa-database"></i> Manage Datasets
+        </p>
+        <p class="font-weight-light text-muted">Here you can add/view the
+            datasets phrases, it will affect the model to check whether it is
+            plagiarized. These are the records of phrases from the collected
+            researches of a student in an academic institution.</p>
+
+        <div class="table table-responsive">
+
+            <table class="table" id="datasets-table">
+                <thead>
+                    <tr>
+                        <th>Phrase(s)</th>
+                        <th>Similar Structure - (Auto Generated)</th>
+                        <th>Plagiarism / Not Plagiarism</th>
+                        <th>From Research Title(s)</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(object, index) in records" :key="index">
+                        <td>[[ object.phrase ]]</td>
+                        <td>[[ object.similar_sample ]]</td>
+                        <td v-if="object.plagiarized === false"
+                            class="text-success fw-bold">
+                            No
+                        </td>
+                        <td v-else class="text-danger fw-bold">
+                            Yes
+                        </td>
+                        <td><a :href="[[ object.title_id.file_location ]]"
+                                class="text-success">[[ object.title_id.title
+                                ]]</a></td>
+                        <td><button class="btn btn-success"
+                                @click="viewDetails(object)"><i
+                                    class="fa-solid fa-eye"></i> View
+                                Details</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -13,13 +104,33 @@
 new Vue({
     delimiters: ["[[", "]]"],
     el: "#" + '{{ obj_name }}',
-    data: {},
+    data: {
+        records: [],
+        activeProps: []
+    },
     mounted() {
         if (document.querySelector("#" + '{{ obj_name }}')) {
             console.log("Mounted " + '{{ obj_name }}' + " page.")
         }
+
+        setInterval(function() {
+            $("#datasets-table").DataTable();
+        }, 4000);
+        //alert(getCookie())
+        // const csrftoken = getCookie("csrftoken");
+        // axios.defaults.headers.common["X-CSRFToken"] = csrftoken;
+        this.getRecords()
     },
-    methods: {},
+    methods: {
+        viewDetails (props) {
+            this.activeProps = props
+            openModal('view-details')
+        },
+        async getRecords () {
+            var result = await axios.get("/api/list-create/datasets/")
+            this.records = result.data
+        }
+    },
 });
 </script>
 {% endblock %}

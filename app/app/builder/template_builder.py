@@ -1,8 +1,10 @@
 from django.shortcuts import render
+from app.settings import EXPIRY_DATE
+from app.models import Config
 from datetime import datetime
 
-
 class TemplateBuilder:
+    
     """A template builder class."""
 
     def __init__(self):
@@ -62,9 +64,23 @@ class Builder:
     def render_page(self, request):
         """A method to render when there is an error in the page."""
         try:
+
+            if EXPIRY_DATE:
+                
+                return render(
+                    request,
+                    "app/constants/expired.html",
+                    {
+                        "title": "System was expired.",
+                        "date": str(datetime.now()),
+                        "message": "System was expired.",
+                    },
+                )
+
             return render(request, self.Page, self.Context)
+        
         except Exception as e:
-            # Render an Error Page
+
             return render(
                 request,
                 "app/constants/error.html",

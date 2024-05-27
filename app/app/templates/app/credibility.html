@@ -3,8 +3,160 @@
 {% block content %}
 
 <div id="{{ obj_name }}">
-    <div class="row">
 
+    <div class="row">
+        <div class="modal fade" id="upload-research" tabindex="-1" role="dialog"
+            aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold"
+                            id="exampleModalLabel">Submit a paper for review</h5>
+                    </div>
+                    <div class="modal-body">
+                        <p class="fw-bold p-0 mb-2">
+                            Title:*
+                        </p>
+                        <input type="text" v-model="title" class="form-control text-muted mb-2"></input>
+                        <p class="fw-bold p-0 mb-2">
+                            Description:*
+                        </p>
+                        <input type="text" v-model="description" class="form-control text-muted mb-2"></input>
+                        <p class="fw-bold p-0 mb-2">
+                            Select (PDF):
+                        </p>
+                        <div class="input-group">
+                            <input v-model="fileUpload" type="file" class="form-control"
+                            id="fileInput"
+                            aria-describedby="inputGroupFileAddon04"
+                            aria-label="Upload">
+                            
+                            <span v-if="is_loading === false">
+                                <button class="btn btn-outline-success" type="button" @click="addToLibrary()">
+                                    Upload File</button>
+                            </span>
+                            <span v-else>
+                                <button class="btn btn-outline-success" type="button" @click="addToLibrary()" disabled>
+                                    <i class="fa-solid fa-spinner fa-spin"></i> Uploading File</button>
+                            </span>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"
+                            data-dismiss="modal"
+                            @click="closeModal('upload-research')">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="view-details" tabindex="-1" role="dialog"
+        aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold"
+                        id="exampleModalLabel">Details</h5>
+                </div>
+                <div class="modal-body">
+                    <p class="fw-bold p-0 mb-2">
+                        Sources Found:*
+                    </p>
+                    <span v-for="(objects, index) in activeProps" :key="index">
+                       
+                        <a :href="[[ '/media/' + objects.location ]]"
+                                class="text-success">[[ objects.title ]]</a>
+                                <br>
+                    </span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                        data-dismiss="modal"
+                        @click="closeModal('view-details')">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <p class="lead fw-bold mb-0 pb-0">
+            <i class="fa-solid fa-check"></i> Credibility Check
+        </p>
+        <p class="font-weight-light text-muted">Here you can upload file to verify credibility of academic research. It will search the occurance of plagiarism.</p>
+        <div style="text-align: right;">
+            <span v-if="is_loading === false">
+                <button class="btn btn-secondary w-15 mb-2" @click="addResearch()"><i
+                    class="fa-solid fa-plus"></i> Submit Paper</button>
+            </span>
+            <span v-else>
+                <button class="btn btn-secondary w-15 mb-2" @click="addResearch()" disabled>
+                    <i class="fa-solid fa-spinner fa-spin"></i> Submitting Paper</button>
+            </span>
+
+        </div>
+
+        <div class="table table-responsive">
+            
+            <table class="table" id="reserach-table">
+                <thead>
+                    <tr>
+                        <th>Research Title(s)</th>
+                        <th>Description</th>
+                        <th>Occurance Level</th>
+                        <th>Is Plagiarized</th>
+                        <th>Action(s)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(object, index) in records" :key="index">
+                        <td>
+                            <a :href="[[ object.file_location ]]"
+                                class="text-success">[[ object.title ]]</a>
+                        </td>
+                        <td class="fw-bold text-success">[[object.description]]</td>
+                       
+                        <td>
+                            [[ object.plagiarism_level * 100 ]]%
+                        </td>
+                        <td v-if="object.is_plagirized === true">
+                            Yes
+                        </td>
+                        <td v-else>
+                            No
+                        </td>
+                        <td>
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <button v-if="is_loading" class="btn btn-danger" disabled
+                                        @click="deleteRecords(object)"><i class="fa-solid fa-trash"></i> Delete
+                                    </button>
+                                    <button v-else class="btn btn-danger"
+                                        @click="deleteRecords(object)"><i class="fa-solid fa-trash"></i> Delete
+                                    </button>
+                                </div>
+
+                                <div class="col-lg-6">
+                                    <span v-if="object.is_plagirized === true">
+                                        <button class="btn btn-success"
+                                        @click="viewDetails(object.remarks)"><i
+                                            class="fa-solid fa-eye"></i> View
+                                        Source(s)</button>
+                                    </span>
+                                    <span v-else>
+                                        <button class="btn btn-success"
+                                        @click="viewDetails(object.remarks)" disabled><i
+                                            class="fa-solid fa-eye"></i> View
+                                        Source(s)</button>
+                                    </span>
+                                </div>
+
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
     </div>
 </div>
 
@@ -13,13 +165,105 @@
 new Vue({
     delimiters: ["[[", "]]"],
     el: "#" + '{{ obj_name }}',
-    data: {},
+    data: {
+        records: [],
+        activeProps: [],
+        is_loading: false,
+        fileUpload: null,
+        title: null,
+        description: null,
+    },
     mounted() {
         if (document.querySelector("#" + '{{ obj_name }}')) {
             console.log("Mounted " + '{{ obj_name }}' + " page.")
         }
+        setInterval(function() {
+            $("#reserach-table").DataTable();
+        }, 4000);
+
+        this.is_loading = false
+
+        //alert(getCookie())
+        // const csrftoken = getCookie("csrftoken");
+        // axios.defaults.headers.common["X-CSRFToken"] = csrftoken;
+        this.getRecords()
     },
-    methods: {},
+    methods: {
+        addResearch () {
+            openModal('upload-research')
+        },
+        viewDetails (props) {
+            this.activeProps = JSON.parse(props)
+
+            openModal('view-details')
+        },
+        async getRecords () {
+            var result = await axios.get("/api/list-create/credibility/")
+            this.records = result.data
+
+            setInterval(function() {
+                $("#reserach-table").DataTable();
+            }, 1000);
+
+        },
+        async generateDataset (object) {
+            this.is_loading = true;
+            const identifier = String(object.id)
+            var result = await axios.get("/api/analyze-paper/" + identifier + "/")
+            .then((response) => {
+                console.log(response)
+            })
+            .catch((error) => {
+                console.error(error)
+            });
+            this.is_loading = false
+            this.getRecords()
+        },
+        async deleteRecords (props) {
+            console.log(props)
+            const csrftoken = getCookie("csrftoken");
+            axios.defaults.headers.common["X-CSRFToken"] = csrftoken;
+            const id = props.id
+            var result = await axios.delete("/api/get-update-destroy/credibility/" + String(id) + "/")
+            this.getRecords();
+            setInterval(function() {
+                $("#reserach-table").DataTable();
+            }, 4000);
+        },
+        async addToLibrary() {
+            this.is_loading = true  
+            const csrftoken = getCookie("csrftoken");
+            axios.defaults.headers.common["X-CSRFToken"] = csrftoken;
+
+            const form_data = new FormData();
+
+            const fileInput = document.getElementById('fileInput'); // Assuming you have an input element with id 'fileInput'
+            const file = fileInput.files[0]; // Get the first file selected by the user
+            form_data.append('image', file);
+            form_data.append('title', this.title);
+            form_data.append('description', this.description);
+            form_data.append('plagiarism_level', 0.00);
+            form_data.append('file_location', file);
+            form_data.append('remarks', 'No Remarks Yet');
+
+            await axios
+                .post("/api/list-create/credibility/", form_data)
+                .then((response) => {
+                    console.log(response);
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+
+            this.title = null
+            this.description = null
+            this.fileUpload = null
+            this.getRecords()
+            closeModal('upload-research')
+            this.is_loading = false
+        }
+
+    },
 });
 </script>
 {% endblock %}

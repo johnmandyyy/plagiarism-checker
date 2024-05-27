@@ -3,7 +3,7 @@ from ..models import *
 from app.helpers.helpers import SerializerHelpers
 from ..api import *
 from django.db import models
-
+from django.views.decorators.csrf import csrf_exempt
 
 class APIBuilder:
 
@@ -24,6 +24,13 @@ class APIBuilder:
             serializer_class = SerializerHelpers().create_serializer(
                 self.model_name, self.app_name
             )
+
+            def __init__(self):
+                self.authentication_classes = []
+
+            @csrf_exempt
+            def post(self, request, *args, **kwargs):
+                return super().post(request, *args, **kwargs)
 
         class GetUpdateDestroy(RetrieveUpdateDestroyAPIView):
 
